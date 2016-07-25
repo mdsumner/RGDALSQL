@@ -3,7 +3,11 @@
 \docType{class}
 \name{GDALSQLConnection-class}
 \alias{GDALSQLConnection-class}
+\alias{show,GDALSQLConnection-method}
 \title{GDALSQL connection class.}
+\usage{
+\S4method{show}{GDALSQLConnection}(object)
+}
 \description{
 GDALSQL connection class.
 }

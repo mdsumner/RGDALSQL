@@ -3,16 +3,21 @@
 \docType{methods}
 \name{dbConnect,GDALSQLDriver-method}
 \alias{dbConnect,GDALSQLDriver-method}
+\title{dbConnect}
 \usage{
-\S4method{dbConnect}{GDALSQLDriver}(drv, dsn = "", ...)
+\S4method{dbConnect}{GDALSQLDriver}(drv, dbname = "", readonly = TRUE, ...)
 }
 \arguments{
 \item{drv}{An object created by \code{GDALSQL()}}
 }
+\description{
+dbConnect
+}
 \examples{
 \dontrun{
-db <- dbConnect(RGDALSQL::GDALSQL())
+db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
+con <- rgdal2::openOGR(afile)
 #dbWriteTable(db, "mtcars", mtcars)
 #dbGetQuery(db, "SELECT * FROM mtcars WHERE cyl == 4")
 }
