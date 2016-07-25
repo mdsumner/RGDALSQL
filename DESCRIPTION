@@ -1,12 +1,11 @@
 Package: RGDALSQL
 Type: Package
-Title: What the Package Does (Title Case)
+Title: GDAL SQL Interface for R
 Version: 0.1.0
 Authors@R: c(
     person("Michael D.", "Sumner", , "mdsumner@gmail.com", c("aut", "cre"))
     )
-Description: DBI for GDAL.
-    Use four spaces when indenting paragraphs within the Description.
+Description: A DBI Compliant Interface for GDAL.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -18,7 +17,8 @@ Suggests:
     DBItest,
     testthat,
     covr,
-    rgdal
+    rgdal,
+    roxygen2
 ByteCompile: yes
 URL: https://github.com/mdsumner/RGDALSQL
 BugReports: https://github.com/mdsumner/RGDALSQL/issues
