@@ -18,6 +18,9 @@ setMethod("show", "GDALSQLDriver", function(object) {
   cat("<GDALSQLDriver>\n")
 })
 
+#' GDALSQL
+#'
+#' GDALSQL driver
 #' @export
 GDALSQL <- function() {
   new("GDALSQLDriver")
@@ -25,7 +28,7 @@ GDALSQL <- function() {
 
 
 #' GDALSQL connection class.
-#'
+#' @rdname GDALSQLConnection-class
 #' @export
 #' @keywords internal
 setClass("GDALSQLConnection",
@@ -43,7 +46,9 @@ setClass("GDALSQLConnection",
 #'
 #' dbConnect
 #'
-#' @param drv An object created by \code{GDALSQL()}
+#' @param drv GDALSQLDriver
+#' @param dbname data source name, file, or folder path
+#' @param readonly open in readonly mode?
 #' @export
 #' @importFrom rgdal2 openOGR
 #' @rdname GDALSQL-dbConnect
@@ -59,7 +64,7 @@ setClass("GDALSQLConnection",
 setMethod("dbConnect", "GDALSQLDriver",
           function(drv, dbname = "", readonly = TRUE, ...) {
   # ...
-  con <- rgdal2::openOGR(dbname)
+  con <- rgdal2::openOGR(dbname, readonly = readonly)
   new("GDALSQLConnection", host = "", rgdal2DS = con,  ...)
 })
 
@@ -89,6 +94,9 @@ setMethod("show", "GDALSQLConnection", function(object) {
 
 #' Send a query to GDALSQL.
 #'
+#' @param conn database connection, s created by \code{\link{dbConnect}}
+#' @param statement OGR SQL, see http://www.gdal.org/ogr_sql.html
+#' @param ... for compatibility with generic
 #' @export
 #' @examples
 #' f = system.file("example-data/continents", package = "rgdal2")

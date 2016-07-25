@@ -8,7 +8,11 @@
 \S4method{dbConnect}{GDALSQLDriver}(drv, dbname = "", readonly = TRUE, ...)
 }
 \arguments{
-\item{drv}{An object created by \code{GDALSQL()}}
+\item{drv}{GDALSQLDriver}
+
+\item{dbname}{data source name, file, or folder path}
+
+\item{readonly}{open in readonly mode?}
 }
 \description{
 dbConnect

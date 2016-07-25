@@ -7,6 +7,13 @@
 \usage{
 \S4method{dbSendQuery}{GDALSQLConnection}(conn, statement, ...)
 }
+\arguments{
+\item{conn}{database connection, s created by \code{\link{dbConnect}}}
+
+\item{statement}{OGR SQL, see http://www.gdal.org/ogr_sql.html}
+
+\item{...}{for compatibility with generic}
+}
 \description{
 Send a query to GDALSQL.
 }
