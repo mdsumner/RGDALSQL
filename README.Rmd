@@ -14,3 +14,20 @@ knitr::opts_chunk$set(
 
 [![Travis-CI Build Status](https://travis-ci.org/mdsumner/RGDALSQL.svg?branch=master)](https://travis-ci.org/mdsumner/RGDALSQL)
 [![Coverage Status](https://img.shields.io/codecov/c/github/mdsumner/RGDALSQL/master.svg)](https://codecov.io/github/mdsumner/RGDALSQL?branch=master)
+
+
+## RGDALSQL
+
+Not much yet. `rgdal2` is still a little fragile, also read only for drawings, and I'm mostly out of my depth there. 
+
+```{r}
+library(RGDALSQL)
+f = system.file("example-data/continents", package = "rgdal2")
+chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this prevents this problem:
+##https://github.com/thk686/rgdal2/issues/7
+db <- dbConnect(RGDALSQL::GDALSQL(), f)
+dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
+```
+
+That's only printing out a SQL layer summary for now, need to use the spbabel/gris approach to get the metadata/geometry, perhaps in spbabel form. From there we can feed to other structures and formats. 
+
