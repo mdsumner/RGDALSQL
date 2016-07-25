@@ -12,6 +12,7 @@ Send a query to GDALSQL.
 }
 \examples{
 f = system.file("example-data/continents", package = "rgdal2")
+chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this resets the problem
 db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
 }

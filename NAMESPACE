@@ -3,6 +3,7 @@
 export(GDALSQL)
 exportClasses(GDALSQLConnection)
 exportClasses(GDALSQLDriver)
+exportClasses(GDALSQLResult)
 exportMethods(dbConnect)
 exportMethods(dbSendQuery)
 exportMethods(dbUnloadDriver)

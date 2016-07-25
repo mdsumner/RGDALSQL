@@ -17,6 +17,7 @@ dbConnect
 \dontrun{
 db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
+chuck <- rgdal::readOGR(afile, "sids") ## bizarrely this resets the problem
 con <- rgdal2::openOGR(afile)
 #dbWriteTable(db, "mtcars", mtcars)
 #dbGetQuery(db, "SELECT * FROM mtcars WHERE cyl == 4")
