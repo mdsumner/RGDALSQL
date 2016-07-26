@@ -19,8 +19,8 @@ dbConnect
 }
 \examples{
 \dontrun{
-db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
+db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 chuck <- rgdal::readOGR(afile, "sids") ## bizarrely this resets the problem
 con <- rgdal2::openOGR(afile)
 #dbWriteTable(db, "mtcars", mtcars)

@@ -54,8 +54,8 @@ setClass("GDALSQLConnection",
 #' @rdname GDALSQL-dbConnect
 #' @examples
 #' \dontrun{
-#' db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 #' afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
+#' db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 #' chuck <- rgdal::readOGR(afile, "sids") ## bizarrely this resets the problem
 #' con <- rgdal2::openOGR(afile)
 #' #dbWriteTable(db, "mtcars", mtcars)
@@ -99,10 +99,11 @@ setMethod("show", "GDALSQLConnection", function(object) {
 #' @param ... for compatibility with generic
 #' @export
 #' @examples
-#' f = system.file("example-data/continents", package = "rgdal2")
-#' chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this resets the problem
-#' db <- dbConnect(RGDALSQL::GDALSQL(), f)
-#' dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
+#' #f = system.file("example-data/continents", package = "rgdal2")
+#' #chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this resets the problem
+#' afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
+#' db <- dbConnect(RGDALSQL::GDALSQL(), afile)
+#' dbSendQuery(db, "SELECT * FROM sids WHERE FID < 1")
 setMethod("dbSendQuery", "GDALSQLConnection",
           function(conn, statement, ...) {
             layer <- rgdal2::getSQLLayer(conn@rgdal2DS, statement)
