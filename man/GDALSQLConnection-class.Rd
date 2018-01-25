@@ -12,4 +12,3 @@
 GDALSQL connection class.
 }
 \keyword{internal}
-

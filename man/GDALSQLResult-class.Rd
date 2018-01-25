@@ -8,4 +8,3 @@
 GDALSQL results class
 }
 \keyword{internal}
-

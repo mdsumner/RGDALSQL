@@ -24,4 +24,3 @@ afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
 db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 dbSendQuery(db, "SELECT * FROM sids WHERE FID < 1")
 }
-

@@ -17,4 +17,3 @@ Read from a vector layer, returns a single object by (counting) ID.
 \details{
 Flattened to nested list of tibbles. sf calls this "readFeature", and returns matrices.
 }
-

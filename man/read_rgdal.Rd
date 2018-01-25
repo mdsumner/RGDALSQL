@@ -18,4 +18,3 @@ Includes a `meta` table to store the CRS string/s, the source name/s, plus futur
 \details{
 sf processes this all in-place into R level simple feature classes.
 }
-

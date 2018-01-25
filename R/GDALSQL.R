@@ -6,17 +6,19 @@
 #' @import methods
 setClass("GDALSQLDriver", contains = "DBIDriver")
 
+#setOldClass("tbl_df")
+
+
+
+
 #' @export
 #' @rdname GDALSQLDriver-class
 setMethod("dbUnloadDriver", "GDALSQLDriver", function(drv, ...) {
   TRUE
 })
-#> [1] "dbUnloadDriver"
 
 
-setMethod("show", "GDALSQLDriver", function(object) {
-  cat("<GDALSQLDriver>\n")
-})
+
 
 #' GDALSQL
 #'
@@ -36,10 +38,16 @@ setClass("GDALSQLConnection",
          slots = list(
            host = "character",
            username = "character",
-           dbname = "character",
            DSN = "character"
          )
 )
+
+#' @rdname GDALSQLConnection-class
+#' @export
+setMethod("show", "GDALSQLConnection", function(object) {
+  cat("<GDALSQLConnection>\n")
+  cat("  DSN: ", object@DSN, "\n", sep = "")
+})
 
 
 #' dbConnect
@@ -47,54 +55,45 @@ setClass("GDALSQLConnection",
 #' dbConnect
 #'
 #' @param drv GDALSQLDriver
-#' @param dbname data source name, file, or folder path
+#' @param DSN  data source name, may be a file, or folder path, database connection string, or URL
 #' @param readonly open in readonly mode?
 #' @export
-#' @importFrom rgdal2 openOGR
-#' @rdname GDALSQL-dbConnect
+#' @rdname GDALSQL
 #' @examples
 #' \dontrun{
+#' ## this is a nothing connection
+#' db <- dbConnect(RGDALSQL::GDALSQL())
 #' afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
 #' db <- dbConnect(RGDALSQL::GDALSQL(), afile)
-#' chuck <- rgdal::readOGR(afile, "sids") ## bizarrely this resets the problem
-#' con <- rgdal2::openOGR(afile)
-#' #dbWriteTable(db, "mtcars", mtcars)
-#' #dbGetQuery(db, "SELECT * FROM mtcars WHERE cyl == 4")
+#' dbSendQuery(db, "SELECT * FROM sids")
 #' }
 setMethod("dbConnect", "GDALSQLDriver",
-          function(drv, dbname = "", readonly = TRUE, ...) {
-  # ...
-  #con <- rgdal2::openOGR(dbname, readonly = readonly)
-  new("GDALSQLConnection", host = "", DSN = dbname,  ...)
-})
+          function(drv, DSN = "", readonly = TRUE, ...) {
 
-#' @rdname GDALSQLConnection-class
+  new("GDALSQLConnection", host = "", DSN = DSN,  ...)
+})
 #' @export
-setMethod("show", "GDALSQLConnection", function(object) {
-  cat("<GDALSQLConnection>\n")
- # if (dbIsValid(object)) {
-    cat("  Path: ", object@dbname, "\n", sep = "")
-    print(object@DSN)
-  #} else {
-  #  cat("  DISCONNECTED\n")
-  #}
+setMethod("show", "GDALSQLDriver", function(object) {
+  cat("<GDALSQLDriver>\n")
+  cat(object@DSN)
+})
+#' @export
+setMethod("dbDisconnect", "GDALSQLDriver",
+          function(conn, ...) {
+  conn@DSN <- ""
+  conn
 })
 
-## dbDisconnect
 
-setOldClass("tbl_df")
  #' GDALSQL results class
  #'
  #' @keywords internal
  #' @export
  setClass("GDALSQLResult",
   contains = "DBIResult",
-  slots = list(layer = "tbl_df")
+  slots = c(layer_data = "list", layer_geom = "list")
   )
-setMethod("show", "GDALSQLResult",
-          function(object) {
-          print(object@layer)
-            })
+
 #' Send a query to GDALSQL.
 #'
 #' @param conn database connection, s created by \code{\link{dbConnect}}
@@ -112,11 +111,48 @@ setMethod("dbSendQuery", "GDALSQLConnection",
 
             layer_data <- vapour::vapour_read_attributes(conn@DSN, sql = statement)
             layer_geom <- vapour::vapour_read_geometry_text(conn@DSN, sql = statement)
-            layer_data <- tibble::as_tibble(layer_data)
-            layer_data[["GEOM"]] <- layer_geom
-            #layer <- rgdal2::getSQLLayer(conn@rgdal2DS, statement)
-            #print(layer)
 
             new("GDALSQLResult",
-                layer = layer_data)
+                layer_data = layer_data,
+                layer_geom = as.list(layer_geom))
           })
+
+
+#' @export
+setMethod("dbClearResult", "GDALSQLResult", function(res, ...) {
+  res@layer <- NULL
+  TRUE
+})
+setMethod("show", "GDALSQLResult",
+          function(object) {
+            cat(sprintf("Field names: %s\n",
+                        paste(names(object@layer_data), collapse = ", ")))
+            cat(sprintf("Geometry (%i features): \n%s",
+                        length(object@layer_geom),
+                        paste(substr(head(object@layer_geom), 1, 36), collapse = "\n")))
+            invisible(NULL)
+          })
+#' Retrieve records from GDALSQL query
+#' @export
+setMethod("dbFetch", "GDALSQLResult", function(res, n = -1, ...) {
+  layer <- tibble::as_tibble(res@layer_data)
+  layer[["GEOM"]] <- res@layer_geom
+  layer
+})
+
+
+#' @export
+setMethod("dbHasCompleted", "GDALSQLResult", function(res, ...) {
+  TRUE
+})
+
+
+
+#' @export
+setMethod("dbReadTable", c(conn = "GDALSQLConnection", name = "character"),
+          function(conn, name, ...){
+            x <- dbSendQuery(conn, sprintf("SELECT * FROM %s", name))
+            dbFetch(x)
+          })
+
+

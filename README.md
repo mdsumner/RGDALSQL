@@ -9,24 +9,21 @@ WIP
 
 ``` r
 library(RGDALSQL)
-#> Linking to GDAL 2.2.3, released 2017/11/20
 f = system.file("example-data/continents", package = "rgdal2")
 db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
-#> # A tibble: 1 x 2
-#>   CONTINENT GEOM                                                          
-#>   <chr>     <chr>                                                         
-#> 1 Asia      "{ \"type\": \"MultiPolygon\", \"coordinates\": [ [ [ [ 93.27…
+#> Field names: CONTINENT
+#> Geometry (1 features): 
+#> { "type": "MultiPolygon", "coordinat
 
 
 dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
-#> # A tibble: 4 x 2
-#>   CONTINENT     GEOM                                                      
-#>   <chr>         <chr>                                                     
-#> 1 North America "{ \"type\": \"MultiPolygon\", \"coordinates\": [ [ [ [ -…
-#> 2 Africa        "{ \"type\": \"MultiPolygon\", \"coordinates\": [ [ [ [ 0…
-#> 3 South America "{ \"type\": \"MultiPolygon\", \"coordinates\": [ [ [ [ -…
-#> 4 Antarctica    "{ \"type\": \"MultiPolygon\", \"coordinates\": [ [ [ [ 5…
+#> Field names: CONTINENT
+#> Geometry (4 features): 
+#> { "type": "MultiPolygon", "coordinat
+#> { "type": "MultiPolygon", "coordinat
+#> { "type": "MultiPolygon", "coordinat
+#> { "type": "MultiPolygon", "coordinat
 ```
 
 Geometry currently is just in JSON form. See hypertidy/vapour for the tooling.

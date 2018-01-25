@@ -12,4 +12,3 @@
 Driver for GDAL SQL.
 }
 \keyword{internal}
-
