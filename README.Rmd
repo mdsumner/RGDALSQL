@@ -18,16 +18,18 @@ knitr::opts_chunk$set(
 
 ## RGDALSQL
 
-Not much yet. `rgdal2` is still a little fragile, also read only for drawings, and I'm mostly out of my depth there. 
+WIP
 
 ```{r}
 library(RGDALSQL)
 f = system.file("example-data/continents", package = "rgdal2")
-chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this prevents this problem:
-##https://github.com/thk686/rgdal2/issues/7
 db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
+
+
+dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
+
 ```
 
-That's only printing out a SQL layer summary for now, need to use the spbabel/gris approach to get the metadata/geometry, perhaps in spbabel form. From there we can feed to other structures and formats. 
+Geometry currently is just in JSON form. See hypertidy/vapour for the tooling. 
 
