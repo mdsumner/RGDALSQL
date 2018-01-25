@@ -48,3 +48,23 @@ substr(head(res$GEOM), 1, 200)
 ```
 
 Geometry currently is just in JSON form. See hypertidy/vapour for the tooling.
+
+Select doesnt' work yet, but filter does
+
+``` r
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+tbl(db, "continent") %>% dplyr::filter(continent == "Australia")
+#> # Source:   lazy query [?? x 2]
+#> # Database: GDALSQLConnection
+#>   CONTINENT GEOM     
+#>   <chr>     <list>   
+#> 1 Australia <chr [1]>
+```

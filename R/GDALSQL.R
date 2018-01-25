@@ -120,7 +120,9 @@ setMethod("dbSendQuery", "GDALSQLConnection",
 
 #' @export
 setMethod("dbClearResult", "GDALSQLResult", function(res, ...) {
-  res@layer <- NULL
+  #res@layer_data <- NULL
+  #res@layer_geom <- NULL
+  res <- NULL
   TRUE
 })
 setMethod("show", "GDALSQLResult",
@@ -156,3 +158,14 @@ setMethod("dbReadTable", c(conn = "GDALSQLConnection", name = "character"),
           })
 
 
+#' @export
+setMethod("dbListTables", c(conn = "GDALSQLConnection"),
+          function(conn, ...){
+            x <- vapour::vapour_layer_names(conn@DSN)
+          })
+
+#' @export
+setMethod("dbExistsTable", c(conn = "GDALSQLConnection"),
+          function(conn, name, ...){
+            name %in% dbListTables(conn)
+          })
