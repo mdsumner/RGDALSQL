@@ -5,14 +5,15 @@ Version: 0.1.0
 Authors@R: c(
     person("Michael D.", "Sumner", , "mdsumner@gmail.com", c("aut", "cre"))
     )
-Description: A DBI Compliant Interface for GDAL.
+Description: A (WIP) DBI Compliant Interface for GDAL.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
     DBI (>= 0.3.0),
     methods,
-    rgdal2
+    tibble,
+    vapour
 Suggests:
     DBItest,
     testthat,
@@ -23,4 +24,4 @@ ByteCompile: yes
 URL: https://github.com/mdsumner/RGDALSQL
 BugReports: https://github.com/mdsumner/RGDALSQL/issues
 RoxygenNote: 5.0.1
-Remotes: edzer/rgdal2
+Remotes: hypertidy/vapour

@@ -37,7 +37,7 @@ setClass("GDALSQLConnection",
            host = "character",
            username = "character",
            dbname = "character",
-           rgdal2DS = "RGDAL2Datasource"
+           DSN = "character"
          )
 )
 
@@ -64,8 +64,8 @@ setClass("GDALSQLConnection",
 setMethod("dbConnect", "GDALSQLDriver",
           function(drv, dbname = "", readonly = TRUE, ...) {
   # ...
-  con <- rgdal2::openOGR(dbname, readonly = readonly)
-  new("GDALSQLConnection", host = "", rgdal2DS = con,  ...)
+  #con <- rgdal2::openOGR(dbname, readonly = readonly)
+  new("GDALSQLConnection", host = "", DSN = dbname,  ...)
 })
 
 #' @rdname GDALSQLConnection-class
@@ -74,7 +74,7 @@ setMethod("show", "GDALSQLConnection", function(object) {
   cat("<GDALSQLConnection>\n")
  # if (dbIsValid(object)) {
     cat("  Path: ", object@dbname, "\n", sep = "")
-    print(object@rgdal2DS)
+    print(object@DSN)
   #} else {
   #  cat("  DISCONNECTED\n")
   #}
@@ -82,16 +82,19 @@ setMethod("show", "GDALSQLConnection", function(object) {
 
 ## dbDisconnect
 
+setOldClass("tbl_df")
  #' GDALSQL results class
  #'
  #' @keywords internal
  #' @export
  setClass("GDALSQLResult",
   contains = "DBIResult",
-  ## dummy for now to avoid null pointer error
-  slots = list(a = "character")
+  slots = list(layer = "tbl_df")
   )
-
+setMethod("show", "GDALSQLResult",
+          function(object) {
+          print(object@layer)
+            })
 #' Send a query to GDALSQL.
 #'
 #' @param conn database connection, s created by \code{\link{dbConnect}}
@@ -106,8 +109,14 @@ setMethod("show", "GDALSQLConnection", function(object) {
 #' dbSendQuery(db, "SELECT * FROM sids WHERE FID < 1")
 setMethod("dbSendQuery", "GDALSQLConnection",
           function(conn, statement, ...) {
-            layer <- rgdal2::getSQLLayer(conn@rgdal2DS, statement)
-            print(layer)
 
-            new("GDALSQLResult", ...)
+            layer_data <- vapour::vapour_read_attributes(conn@DSN, sql = statement)
+            layer_geom <- vapour::vapour_read_geometry_text(conn@DSN, sql = statement)
+            layer_data <- tibble::as_tibble(layer_data)
+            layer_data[["GEOM"]] <- layer_geom
+            #layer <- rgdal2::getSQLLayer(conn@rgdal2DS, statement)
+            #print(layer)
+
+            new("GDALSQLResult",
+                layer = layer_data)
           })
