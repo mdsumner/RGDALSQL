@@ -29,7 +29,9 @@ dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
 
 dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
 
-dbReadTable(db, "continent")
+res <- dbReadTable(db, "continent")
+print(res)
+substr(head(res$GEOM), 1, 200)
 ```
 
 Geometry currently is just in JSON form. See hypertidy/vapour for the tooling. 
