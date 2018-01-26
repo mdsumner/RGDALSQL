@@ -70,6 +70,7 @@ setMethod("show", "GDALSQLConnection", function(object) {
 setMethod("dbConnect", "GDALSQLDriver",
           function(drv, DSN = "", readonly = TRUE, ...) {
 
+            #DSN <- normalizePath(DSN, mustWork = FALSE)
   new("GDALSQLConnection", host = "", DSN = DSN,  ...)
 })
 #' @export
@@ -108,9 +109,9 @@ setMethod("dbDisconnect", "GDALSQLDriver",
 #' dbSendQuery(db, "SELECT * FROM sids WHERE FID < 1")
 setMethod("dbSendQuery", "GDALSQLConnection",
           function(conn, statement, ...) {
-
-            layer_data <- vapour::vapour_read_attributes(conn@DSN, sql = statement)
-            layer_geom <- vapour::vapour_read_geometry_text(conn@DSN, sql = statement)
+            DSN <- normalizePath(conn@DSN, mustWork = FALSE)
+            layer_data <- vapour::vapour_read_attributes(DSN, sql = statement)
+            layer_geom <- vapour::vapour_read_geometry_text(DSN, sql = statement)
 
             new("GDALSQLResult",
                 layer_data = layer_data,

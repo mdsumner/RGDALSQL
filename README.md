@@ -49,22 +49,31 @@ substr(head(res$GEOM), 1, 200)
 
 Geometry currently is just in JSON form. See hypertidy/vapour for the tooling.
 
-Select doesnt' work yet, but filter does
+Lazy does not work yet ...
 
 ``` r
 library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 tbl(db, "continent") %>% dplyr::filter(continent == "Australia")
-#> # Source:   lazy query [?? x 2]
-#> # Database: GDALSQLConnection
-#>   CONTINENT GEOM     
-#>   <chr>     <list>   
-#> 1 Australia <chr [1]>
+
+library(sf)
+to_sf <- function(x, ...) {
+  x[["GEOM"]] <- sf::st_as_sfc(x[["GEOM"]], GeoJSON = TRUE)
+  sf::st_as_sf(x)
+}
+tbl(db, "continent") %>% dplyr::filter(continent %in% c("Australia", "Antarctica")) %>% collect() %>% 
+  to_sf()
+```
+
+Try OSM PBF.
+
+``` r
+f <- "~/albania-latest.osm.pbf"
+pbf <- dbConnect(RGDALSQL::GDALSQL(),f)
+## we have to use a normalized path 
+## (vapour doesn't do this yet, but GDALSQL will do it *when connecting*, 
+## currently maintains the input DSN)
+pbf
+# db_list_tables(pbf)
+
+tbl(pbf, "points") 
 ```
