@@ -76,10 +76,9 @@ setMethod("dbConnect", "GDALSQLDriver",
 #' @export
 setMethod("show", "GDALSQLDriver", function(object) {
   cat("<GDALSQLDriver>\n")
-  cat(object@DSN)
 })
 #' @export
-setMethod("dbDisconnect", "GDALSQLDriver",
+setMethod("dbDisconnect", "GDALSQLConnection",
           function(conn, ...) {
   conn@DSN <- ""
   conn
@@ -170,3 +169,36 @@ setMethod("dbExistsTable", c(conn = "GDALSQLConnection"),
           function(conn, name, ...){
             name %in% dbListTables(conn)
           })
+
+#' @export
+setMethod("dbDataType", "GDALSQLDriver", function(dbObj, obj, ...) {
+  ## see "type of the fields" http://www.gdal.org/ogr_sql.html
+##  vapour::vapour_read_attributes(normalizePath(f), sql = "SELECT CAST(osm_id AS integer(8)) AS OSM_ FROM points LIMIT 1")
+  if (is.factor(obj)) return("character")
+  if (is.data.frame(obj)) return(callNextMethod(dbObj, obj))
+
+  switch(typeof(obj),
+         logical = "boolean",
+         character = "character",
+         double = "numeric",
+         integer = "integer",
+         list = "character",
+         raw = "character",
+         blob = "character",
+         stop("Unsupported type", call. = FALSE)
+  )
+  }
+
+
+        )
+#' @export
+setMethod("dbGetInfo", "GDALSQLDriver",
+          function(dbObj, ...) {
+   list(name = "GDALSQLDriver",
+        note = "virtual SQL driver for GDAL",
+        driver.version = "0.0.1.9001",
+        client.version = "0.0.1.9001")
+})
+
+
+
