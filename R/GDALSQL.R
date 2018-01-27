@@ -125,13 +125,15 @@ setMethod("dbClearResult", "GDALSQLResult", function(res, ...) {
   res <- NULL
   TRUE
 })
+#' @importFrom utils head
+#' @export
 setMethod("show", "GDALSQLResult",
           function(object) {
             cat(sprintf("Field names: %s\n",
                         paste(names(object@layer_data), collapse = ", ")))
             cat(sprintf("Geometry (%i features): \n%s",
                         length(object@layer_geom),
-                        paste(substr(head(object@layer_geom), 1, 36), collapse = "\n")))
+                        paste(substr(utils::head(object@layer_geom), 1, 36), collapse = "\n")))
             invisible(NULL)
           })
 #' Retrieve records from GDALSQL query
