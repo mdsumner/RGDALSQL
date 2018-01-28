@@ -67,3 +67,12 @@ pbf
 tbl(pbf, "points") 
 ```
 
+
+```{r}
+f <- "inst/extdata/shapes.gpkg"
+conn <- dbConnect(RGDALSQL::GDALSQL(),f)
+conn
+dbListTables(conn)
+
+x <- dbSendQuery(conn, "SELECT AREA FROM sids WHERE SID74 < 10")
+```

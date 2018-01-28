@@ -115,6 +115,7 @@ setMethod("dbSendQuery", "GDALSQLConnection",
             new("GDALSQLResult",
                 layer_data = layer_data,
                 layer_geom = as.list(layer_geom))
+
           })
 
 
@@ -122,7 +123,7 @@ setMethod("dbSendQuery", "GDALSQLConnection",
 setMethod("dbClearResult", "GDALSQLResult", function(res, ...) {
   #res@layer_data <- NULL
   #res@layer_geom <- NULL
-  res <- NULL
+  #res <- NULL
   TRUE
 })
 #' @importFrom utils head
