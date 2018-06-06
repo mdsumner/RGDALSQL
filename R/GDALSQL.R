@@ -100,6 +100,7 @@ setMethod("dbDisconnect", "GDALSQLConnection",
 #' @param statement OGR SQL, see http://www.gdal.org/ogr_sql.html
 #' @param ... for compatibility with generic
 #' @export
+#' @importFrom vapour vapour_read_attributes vapour_read_geometry_text
 #' @examples
 #' #f = system.file("example-data/continents", package = "rgdal2")
 #' #chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this resets the problem
@@ -161,6 +162,7 @@ setMethod("dbReadTable", c(conn = "GDALSQLConnection", name = "character"),
           })
 
 
+#' @importFrom vapour vapour_layer_names
 #' @export
 setMethod("dbListTables", c(conn = "GDALSQLConnection"),
           function(conn, ...){

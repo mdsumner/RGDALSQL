@@ -22,7 +22,7 @@ WIP
 
 ```{r}
 library(RGDALSQL)
-f = system.file("example-data/continents", package = "rgdal2")
+f = system.file("extdata/continents", package = "RGDALSQL")
 db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
 
@@ -40,7 +40,7 @@ Geometry currently is just in JSON form. See hypertidy/vapour for the tooling.
 Lazy does not work yet ...
 
 
-```{r, eval = FALSE}
+```{r}
 library(dplyr)
 tbl(db, "continent") %>% dplyr::filter(continent == "Australia")
 
@@ -55,7 +55,7 @@ tbl(db, "continent") %>% dplyr::filter(continent %in% c("Australia", "Antarctica
 
 Try OSM PBF. 
 
-```{r, eval = FALSE}
+```{r}
 f <- "~/albania-latest.osm.pbf"
 pbf <- dbConnect(RGDALSQL::GDALSQL(),f)
 ## we have to use a normalized path 

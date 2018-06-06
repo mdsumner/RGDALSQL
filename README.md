@@ -9,15 +9,19 @@ WIP
 
 ``` r
 library(RGDALSQL)
-f = system.file("example-data/continents", package = "rgdal2")
+f = system.file("extdata/continents", package = "RGDALSQL")
 db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
 #> Field names: CONTINENT
 #> Geometry (1 features): 
 #> { "type": "MultiPolygon", "coordinat
 
 
 dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
 #> Field names: CONTINENT
 #> Geometry (4 features): 
 #> { "type": "MultiPolygon", "coordinat
@@ -26,6 +30,8 @@ dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
 #> { "type": "MultiPolygon", "coordinat
 
 res <- dbReadTable(db, "continent")
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
 print(res)
 #> # A tibble: 8 x 2
 #>   CONTINENT     GEOM     
@@ -53,15 +59,50 @@ Lazy does not work yet ...
 
 ``` r
 library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 tbl(db, "continent") %>% dplyr::filter(continent == "Australia")
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+#> # Source:   lazy query [?? x 2]
+#> # Database: GDALSQLConnection
+#>   CONTINENT GEOM     
+#>   <chr>     <list>   
+#> 1 Australia <chr [1]>
 
 library(sf)
+#> Linking to GEOS 3.5.1, GDAL 2.2.2, proj.4 4.9.2
 to_sf <- function(x, ...) {
   x[["GEOM"]] <- sf::st_as_sfc(x[["GEOM"]], GeoJSON = TRUE)
   sf::st_as_sf(x)
 }
 tbl(db, "continent") %>% dplyr::filter(continent %in% c("Australia", "Antarctica")) %>% collect() %>% 
   to_sf()
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+#> Simple feature collection with 2 features and 1 field
+#> geometry type:  MULTIPOLYGON
+#> dimension:      XY
+#> bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: -10.14556
+#> epsg (SRID):    4326
+#> proj4string:    +proj=longlat +datum=WGS84 +no_defs
+#> # A tibble: 2 x 2
+#>   CONTINENT                                                           GEOM
+#>   <chr>                                                 <MULTIPOLYGON [°]>
+#> 1 Australia  (((142.28 -10.26556, 142.1894 -10.20417, 142.2286 -10.14556,…
+#> 2 Antarctica (((51.80305 -46.45667, 51.71055 -46.44667, 51.65374 -46.3719…
 ```
 
 Try OSM PBF.
@@ -73,7 +114,45 @@ pbf <- dbConnect(RGDALSQL::GDALSQL(),f)
 ## (vapour doesn't do this yet, but GDALSQL will do it *when connecting*, 
 ## currently maintains the input DSN)
 pbf
+#> <GDALSQLConnection>
+#>   DSN: ~/albania-latest.osm.pbf
 # db_list_tables(pbf)
 
 tbl(pbf, "points") 
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+#> # Source:   table<points> [?? x 11]
+#> # Database: GDALSQLConnection
+#>    osm_id  name      barrier highway    ref   address is_in place man_made
+#>    <chr>   <chr>     <chr>   <chr>      <chr> <chr>   <chr> <chr> <chr>   
+#>  1 154606… ""        ""      traffic_s… ""    ""      ""    ""    ""      
+#>  2 154927… ""        ""      traffic_s… ""    ""      ""    ""    ""      
+#>  3 154928… ""        ""      traffic_s… ""    ""      ""    ""    ""      
+#>  4 268630… Grykat E… ""      ""         ""    ""      ""    ""    ""      
+#>  5 268632… Kakiuki   ""      ""         ""    ""      ""    ""    ""      
+#>  6 268635… Mali i D… ""      ""         ""    ""      ""    ""    ""      
+#>  7 268635… Maja e D… ""      ""         ""    ""      ""    ""    ""      
+#>  8 268635… Maja e D… ""      ""         ""    ""      ""    ""    ""      
+#>  9 268635… Maja e D… ""      ""         ""    ""      ""    ""    ""      
+#> 10 268635… Maja e D… ""      ""         ""    ""      ""    ""    ""      
+#> # ... with more rows, and 2 more variables: other_tags <chr>, GEOM <list>
+```
+
+``` r
+f <- "inst/extdata/shapes.gpkg"
+conn <- dbConnect(RGDALSQL::GDALSQL(),f)
+conn
+#> <GDALSQLConnection>
+#>   DSN: inst/extdata/shapes.gpkg
+dbListTables(conn)
+#> [1] "sids"
+
+x <- dbSendQuery(conn, "SELECT AREA FROM sids WHERE SID74 < 10")
+#> Warning in fid_select(sql): select statement assumed, modified to 'SELECT
+#> FID FROM' boilerplate
+#> Warning in vapour_read_geometry_cpp(dsource = dsource, layer = layer, sql = sql, : at least one geometry is NULL, perhaps the 'sql' argument excludes the native geometry?
+#> (use 'SELECT * FROM ..')
 ```
