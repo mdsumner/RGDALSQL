@@ -12,8 +12,6 @@ WIP
 
 ``` r
 library(RGDALSQL)
-#> Warning: replacing previous import 'vctrs::data_frame' by 'tibble::data_frame'
-#> when loading 'dplyr'
 f = system.file("extdata/continents", package = "RGDALSQL")
 db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
@@ -22,13 +20,15 @@ dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
 #> <MULTIPOLYGON (((93.2755 80.2636, 93.148 80.3139, 91.4249 80.3101...>
 
 
-dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
-#> Field names: CONTINENT
-#> Geometry (4 features): 
-#> <MULTIPOLYGON (((-25.2817 71.3917, -25.6239 71.5372, -26.9503 71.5786...>
-#> <MULTIPOLYGON (((0.694651 5.77337, 0.635833 5.94451, 0.506462 6.05859...>
-#> <MULTIPOLYGON (((-81.7131 12.4903, -81.7201 12.5453, -81.6924 12.5903...>
-#> <MULTIPOLYGON (((51.8031 -46.4567, 51.7106 -46.4467, 51.6537 -46.3719...>
+res <- dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
+dbFetch(res)
+#> # A tibble: 4 x 2
+#>   CONTINENT     GEOM                                                            
+#>   <chr>         <wk_wkb>                                                        
+#> 1 North America <MULTIPOLYGON (((-25.2817 71.3917, -25.6239 71.5372, -26.9503 7…
+#> 2 Africa        <MULTIPOLYGON (((0.694651 5.77337, 0.635833 5.94451, 0.506462 6…
+#> 3 South America <MULTIPOLYGON (((-81.7131 12.4903, -81.7201 12.5453, -81.6924 1…
+#> 4 Antarctica    <MULTIPOLYGON (((51.8031 -46.4567, 51.7106 -46.4467, 51.6537 -4…
 
 (res <- dbReadTable(db, "continent"))
 #> # A tibble: 8 x 2
@@ -105,9 +105,37 @@ f <- "inst/extdata/shapes.gpkg"
 conn <- dbConnect(RGDALSQL::GDALSQL(),f)
 conn
 #> <GDALSQLConnection>
-#>   DSN: inst/extdata/shapes.gpkg
+#>    DSN: inst/extdata/shapes.gpkg
+#> tables: sids
 dbListTables(conn)
 #> [1] "sids"
 
 x <- dbSendQuery(conn, "SELECT * FROM sids WHERE SID74 < 10")
+
+## atm we must include 'GEOM' if a select wouldn't include it
+conn
+#> <GDALSQLConnection>
+#>    DSN: inst/extdata/shapes.gpkg
+#> tables: sids
+
+## we can work with FID but not OGR_GEOM_AREA it seems, and can't select FID ...
+tbl(conn, "sids") %>% arrange(desc(FID))  %>% select(BIR74, NAME, GEOM)  %>% collect()
+#> # A tibble: 100 x 3
+#>    BIR74 NAME       GEOM                                                        
+#>    <dbl> <chr>      <wk_wkb>                                                    
+#>  1  2181 Brunswick  <POLYGON ((-78.6557 33.9487, -78.6347 33.978, -78.6303 34.0…
+#>  2  5526 New Hanov… <POLYGON ((-77.9607 34.1892, -77.9659 34.2423, -77.9753 34.…
+#>  3  3350 Columbus   <POLYGON ((-78.6557 33.9487, -79.0745 34.3046, -79.0409 34.…
+#>  4  1228 Pender     <POLYGON ((-78.0259 34.3288, -78.1302 34.3641, -78.1548 34.…
+#>  5  1782 Bladen     <POLYGON ((-78.2615 34.3948, -78.329 34.3644, -78.4379 34.3…
+#>  6  2414 Carteret   <MULTIPOLYGON (((-77.149 34.7643, -77.1643 34.7745, -77.159…
+#>  7  7889 Robeson    <POLYGON ((-78.8645 34.4772, -78.9195 34.4536, -78.9507 34.…
+#>  8 11158 Onslow     <POLYGON ((-77.5386 34.457, -77.5763 34.4693, -77.6898 34.7…
+#>  9  2255 Scotland   <POLYGON ((-79.456 34.6341, -79.6675 34.8007, -79.686 34.80…
+#> 10  5868 Craven     <MULTIPOLYGON (((-76.8976 35.2516, -76.9474 35.217, -76.966…
+#> # … with 90 more rows
+
+## with SHP we can do arrange but not select on OGR_GEOM_AREA
+#f <- system.file("shape/nc.shp", package = "sf")
+#tbl(conn, "nc") %>% arrange(desc(OGR_GEOM_AREA))    %>% collect()
 ```

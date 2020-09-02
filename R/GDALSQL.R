@@ -18,12 +18,7 @@ setMethod("dbUnloadDriver", "GDALSQLDriver", function(drv, ...) {
   TRUE
 })
 
-#' @rdname GDALSQLConnection-class
-#' @export
-setMethod("show", "GDALSQLConnection", function(object) {
-  cat("<GDALSQLConnection>\n")
-  cat("  DSN: ", object@DSN, "\n", sep = "")
-})
+
 
 
 
@@ -51,7 +46,14 @@ setClass("GDALSQLConnection",
 )
 
 
-
+#' @rdname GDALSQLConnection-class
+#' @export
+setMethod("show", "GDALSQLConnection", function(object) {
+  cat("<GDALSQLConnection>\n")
+  tables <- DBI::dbListTables(object)
+  cat("   DSN: ", object@DSN, "\n", sep = "")
+  cat("tables: ", paste(tables, collapse = ", "), "\n", sep = "")
+})
 #' dbConnect
 #'
 #' dbConnect

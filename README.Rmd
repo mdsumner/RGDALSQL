@@ -29,7 +29,8 @@ db <- dbConnect(RGDALSQL::GDALSQL(), f)
 dbSendQuery(db, "SELECT * FROM continent WHERE FID < 1")
 
 
-dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
+res <- dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
+dbFetch(res)
 
 (res <- dbReadTable(db, "continent"))
 ```
@@ -82,4 +83,14 @@ conn
 dbListTables(conn)
 
 x <- dbSendQuery(conn, "SELECT * FROM sids WHERE SID74 < 10")
+
+## atm we must include 'GEOM' if a select wouldn't include it
+conn
+
+## we can work with FID but not OGR_GEOM_AREA it seems, and can't select FID ...
+tbl(conn, "sids") %>% arrange(desc(FID))  %>% select(BIR74, NAME, GEOM)  %>% collect()
+
+## with SHP we can do arrange but not select on OGR_GEOM_AREA
+#f <- system.file("shape/nc.shp", package = "sf")
+#tbl(conn, "nc") %>% arrange(desc(OGR_GEOM_AREA))    %>% collect()
 ```
