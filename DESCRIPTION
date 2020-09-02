@@ -1,7 +1,7 @@
 Package: RGDALSQL
 Type: Package
 Title: GDAL SQL Interface for R
-Version: 0.1.0
+Version: 0.1.0.9001
 Authors@R: c(
     person("Michael D.", "Sumner", , "mdsumner@gmail.com", c("aut", "cre"))
     )
@@ -13,7 +13,8 @@ Imports:
     DBI (>= 0.3.0),
     methods,
     tibble,
-    vapour
+    vapour,
+    wk
 Suggests:
     DBItest,
     testthat,
@@ -23,5 +24,5 @@ Suggests:
 ByteCompile: yes
 URL: https://github.com/mdsumner/RGDALSQL
 BugReports: https://github.com/mdsumner/RGDALSQL/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.1
 Remotes: hypertidy/vapour

@@ -7,7 +7,8 @@
 setClass("GDALSQLDriver", contains = "DBIDriver")
 
 #setOldClass("tbl_df")
-
+setOldClass(c("wk_wkb", "wk_vctr"))
+setOldClass(c("wk_wkt", "wk_vctr"))
 
 
 
@@ -91,7 +92,7 @@ setMethod("dbDisconnect", "GDALSQLConnection",
  #' @export
  setClass("GDALSQLResult",
   contains = "DBIResult",
-  slots = c(layer_data = "list", layer_geom = "list")
+  slots = c(layer_data = "list", layer_geom = "wk_vctr")
   )
 
 #' Send a query to GDALSQL.
@@ -101,21 +102,22 @@ setMethod("dbDisconnect", "GDALSQLConnection",
 #' @param ... for compatibility with generic
 #' @export
 #' @importFrom vapour vapour_read_attributes vapour_read_geometry_text
+#' @importFrom wk new_wk_wkb
 #' @examples
-#' #f = system.file("example-data/continents", package = "rgdal2")
-#' #chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this resets the problem
 #' afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
 #' db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 #' dbSendQuery(db, "SELECT * FROM sids WHERE FID < 1")
 setMethod("dbSendQuery", "GDALSQLConnection",
           function(conn, statement, ...) {
+            ## FIXME: may not be a file
             DSN <- normalizePath(conn@DSN, mustWork = FALSE)
+
             layer_data <- vapour::vapour_read_attributes(DSN, sql = statement)
-            layer_geom <- vapour::vapour_read_geometry_text(DSN, sql = statement)
+            layer_geom <- wk::new_wk_wkb(vapour::vapour_read_geometry(DSN, sql = statement))
 
             new("GDALSQLResult",
                 layer_data = layer_data,
-                layer_geom = as.list(layer_geom))
+                layer_geom = layer_geom)
 
           })
 
@@ -135,7 +137,7 @@ setMethod("show", "GDALSQLResult",
                         paste(names(object@layer_data), collapse = ", ")))
             cat(sprintf("Geometry (%i features): \n%s",
                         length(object@layer_geom),
-                        paste(substr(utils::head(object@layer_geom), 1, 36), collapse = "\n")))
+                        paste(utils::head(object@layer_geom), collapse = "\n")))
             invisible(NULL)
           })
 #' Retrieve records from GDALSQL query
