@@ -19,7 +19,6 @@ Suggests:
     DBItest,
     testthat,
     covr,
-    rgdal,
     roxygen2
 ByteCompile: yes
 URL: https://github.com/mdsumner/RGDALSQL

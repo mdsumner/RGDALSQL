@@ -17,8 +17,6 @@
 Send a query to GDALSQL.
 }
 \examples{
-#f = system.file("example-data/continents", package = "rgdal2")
-#chuck <- rgdal::ogrInfo(f, "continent") ## bizarrely this resets the problem
 afile <- system.file("extdata", "shapes.gpkg", package = "RGDALSQL")
 db <- dbConnect(RGDALSQL::GDALSQL(), afile)
 dbSendQuery(db, "SELECT * FROM sids WHERE FID < 1")

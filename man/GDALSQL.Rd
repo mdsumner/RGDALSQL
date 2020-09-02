@@ -7,10 +7,16 @@
 \usage{
 GDALSQL()
 
-\S4method{dbConnect}{GDALSQLDriver}(drv, DSN = "", readonly = TRUE, ...)
+\S4method{dbConnect}{GDALSQLDriver}(
+  drv,
+  DSN = "",
+  readonly = TRUE,
+  ...,
+  bigint = c("integer64", "integer", "numeric", "character")
+)
 }
 \arguments{
-\item{drv}{GDALSQLDriver}
+\item{drv}{GDALSQLDriver created by \code{GDALSQL()}}
 
 \item{DSN}{data source name, may be a file, or folder path, database connection string, or URL}
 

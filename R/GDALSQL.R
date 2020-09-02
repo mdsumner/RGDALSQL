@@ -18,6 +18,12 @@ setMethod("dbUnloadDriver", "GDALSQLDriver", function(drv, ...) {
   TRUE
 })
 
+#' @rdname GDALSQLConnection-class
+#' @export
+setMethod("show", "GDALSQLConnection", function(object) {
+  cat("<GDALSQLConnection>\n")
+  cat("  DSN: ", object@DSN, "\n", sep = "")
+})
 
 
 
@@ -39,23 +45,18 @@ setClass("GDALSQLConnection",
          slots = list(
            host = "character",
            username = "character",
-           DSN = "character"
+           DSN = "character",
+           bigint = "character"
          )
 )
 
-#' @rdname GDALSQLConnection-class
-#' @export
-setMethod("show", "GDALSQLConnection", function(object) {
-  cat("<GDALSQLConnection>\n")
-  cat("  DSN: ", object@DSN, "\n", sep = "")
-})
 
 
 #' dbConnect
 #'
 #' dbConnect
 #'
-#' @param drv GDALSQLDriver
+#' @param drv GDALSQLDriver created by \code{GDALSQL()}
 #' @param DSN  data source name, may be a file, or folder path, database connection string, or URL
 #' @param readonly open in readonly mode?
 #' @export
@@ -69,10 +70,9 @@ setMethod("show", "GDALSQLConnection", function(object) {
 #' dbSendQuery(db, "SELECT * FROM sids")
 #' }
 setMethod("dbConnect", "GDALSQLDriver",
-          function(drv, DSN = "", readonly = TRUE, ...) {
-
-            #DSN <- normalizePath(DSN, mustWork = FALSE)
-  new("GDALSQLConnection", host = "", DSN = DSN,  ...)
+          function(drv, DSN = "", readonly = TRUE, ...,
+                   bigint = c("integer64", "integer", "numeric", "character")) {
+  new("GDALSQLConnection", host = "", DSN = DSN,  ..., bigint = bigint)
 })
 #' @export
 setMethod("show", "GDALSQLDriver", function(object) {
@@ -93,7 +93,7 @@ setMethod("dbDisconnect", "GDALSQLConnection",
  setClass("GDALSQLResult",
   contains = "DBIResult",
   slots = c(layer_data = "list", layer_geom = "wk_vctr")
-  )
+)
 
 #' Send a query to GDALSQL.
 #'
@@ -124,9 +124,7 @@ setMethod("dbSendQuery", "GDALSQLConnection",
 
 #' @export
 setMethod("dbClearResult", "GDALSQLResult", function(res, ...) {
-  #res@layer_data <- NULL
-  #res@layer_geom <- NULL
-  #res <- NULL
+  ## FIXME maybe a ResetReading here  if we use a pointer not a DSN string?
   TRUE
 })
 #' @importFrom utils head
