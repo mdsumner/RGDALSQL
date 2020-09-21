@@ -44,6 +44,21 @@ dbFetch(res)
 #> 8 Antarctica    <MULTIPOLYGON (((51.8031 -46.4567, 51.7106 -46.4467, 51.6537 -4…
 ```
 
+## Limitations
+
+  - currently read-only, so no temporary tables for `compute()`
+  - no temporary tables in non-DB drivers (i.e. GPKG is ok, SHP is not)
+  - no sub-queryies in non-DB drivers (i.e. no collapse for SHP)
+
+filter, arrange, summarize, transmute, mutate, ok
+
+TODO
+
+  - remove default keep of geometry
+  - …
+
+<!-- end list -->
+
 ``` r
 library(dplyr)
 #> 

@@ -35,6 +35,19 @@ dbFetch(res)
 (res <- dbReadTable(db, "continent"))
 ```
 
+## Limitations
+
+* currently read-only, so no temporary tables for `compute()`
+* no temporary tables in non-DB drivers (i.e. GPKG is ok, SHP is not)
+* no sub-queryies in non-DB drivers (i.e. no collapse for SHP)
+
+filter, arrange, summarize, transmute, mutate, ok
+
+TODO
+
+- remove default keep of geometry
+- ...
+
 
 
 ```{r}
