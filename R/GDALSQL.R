@@ -115,6 +115,7 @@ setMethod("dbSendQuery", "GDALSQLConnection",
             DSN <- normalizePath(conn@DSN, mustWork = FALSE)
 
             layer_data <- try(vapour::vapour_read_attributes(DSN, sql = statement), silent = TRUE)
+
             if (inherits(layer_data, "try-error")) {
              message("executing SQL failed:")
              writeLines(statement)
@@ -153,13 +154,22 @@ setMethod("show", "GDALSQLResult",
 #' Retrieve records from GDALSQL query
 #' @export
 setMethod("dbFetch", "GDALSQLResult", function(res, n = -1, ...) {
+  new_tib <- FALSE
   layer <- tibble::as_tibble(res@layer_data)
+  if (nrow(layer) < 1) {
+    new_tib <- TRUE
+  }
   geom_name <- res@geom_name
   if (geom_name[1L] == "") {
     geom_name <- getOption("RGDALSQL.default.geom.name")
   }
+
   if (!geom_name %in% names(layer) && !all(is.na(res@layer_geom))) {
-    layer[[geom_name]] <- res@layer_geom
+    if (new_tib) {
+      layer <- tibble::as_tibble(setNames(list(res@layer_geom), geom_name))
+    } else {
+      layer[[geom_name]] <- res@layer_geom
+    }
   }
   layer
 })
