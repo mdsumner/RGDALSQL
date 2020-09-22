@@ -114,7 +114,16 @@ setMethod("dbSendQuery", "GDALSQLConnection",
             ## FIXME: may not be a file
             DSN <- normalizePath(conn@DSN, mustWork = FALSE)
 
-            layer_data <- vapour::vapour_read_attributes(DSN, sql = statement)
+            layer_data <- try(vapour::vapour_read_attributes(DSN, sql = statement), silent = TRUE)
+            if (inherits(layer_data, "try-error")) {
+             message("executing SQL failed:")
+             writeLines(statement)
+             if (length(gregexpr("SELECT", statement)[[1]]) > 1) {
+               stop("perhaps driver in use does not support sub-queries?")
+             } else {
+               stop("")
+             }
+            }
             layer_geom <- wk::new_wk_wkb(vapour::vapour_read_geometry(DSN, sql = statement))
             geom_name <-  geom_name <- vapour::vapour_geom_name(DSN, sql = statement)
             new("GDALSQLResult",
