@@ -33,6 +33,8 @@ res <- dbSendQuery(db, "SELECT * FROM continent WHERE continent LIKE '%ca'")
 dbFetch(res)
 
 (res <- dbReadTable(db, "continent"))
+
+dplyr::tbl(db, "continent")
 ```
 
 ## Limitations

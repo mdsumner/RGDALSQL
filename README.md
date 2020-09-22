@@ -42,6 +42,20 @@ dbFetch(res)
 #> 6 Oceania       <MULTIPOLYGON (((-177.393 28.1842, -177.388 28.2146, -177.361 2…
 #> 7 Australia     <MULTIPOLYGON (((142.28 -10.2656, 142.189 -10.2042, 142.229 -10…
 #> 8 Antarctica    <MULTIPOLYGON (((51.8031 -46.4567, 51.7106 -46.4467, 51.6537 -4…
+
+dplyr::tbl(db, "continent")
+#> # Source:   table<continent> [?? x 2]
+#> # Database: GDALSQLConnection
+#>   CONTINENT     `_ogr_geometry_`                                                
+#>   <chr>         <wk_wkb>                                                        
+#> 1 Asia          <MULTIPOLYGON (((93.2755 80.2636, 93.148 80.3139, 91.4249 80.31…
+#> 2 North America <MULTIPOLYGON (((-25.2817 71.3917, -25.6239 71.5372, -26.9503 7…
+#> 3 Europe        <MULTIPOLYGON (((58.0614 81.6878, 57.8899 81.7099, 59.4355 81.8…
+#> 4 Africa        <MULTIPOLYGON (((0.694651 5.77337, 0.635833 5.94451, 0.506462 6…
+#> 5 South America <MULTIPOLYGON (((-81.7131 12.4903, -81.7201 12.5453, -81.6924 1…
+#> 6 Oceania       <MULTIPOLYGON (((-177.393 28.1842, -177.388 28.2146, -177.361 2…
+#> 7 Australia     <MULTIPOLYGON (((142.28 -10.2656, 142.189 -10.2042, 142.229 -10…
+#> 8 Antarctica    <MULTIPOLYGON (((51.8031 -46.4567, 51.7106 -46.4467, 51.6537 -4…
 ```
 
 ## Limitations
@@ -134,11 +148,11 @@ tbl(conn, "sids") %>%
   filter(a > 1.62)  %>% 
   show_query()
 #> <SQL>
+#> Warning: Ignoring sort order.
+#> Hint: `arrange()` only has an effect if used at the end of a pipe or immediately before `head()`. See `?arrange.tbl_lazy` for details.
 #> SELECT *
 #> FROM (SELECT "AREA" * 8.0 AS "a", "geom", "AREA"
-#> FROM (SELECT *
-#> FROM "sids"
-#> ORDER BY "AREA" DESC) "dbplyr_001") "dbplyr_002"
+#> FROM "sids") "dbplyr_001"
 #> WHERE ("a" > 1.62)
 
 
@@ -175,7 +189,7 @@ tbl(conn, "nc") %>% mutate(aa = AREA) %>% transmute(a1 = FID) %>% show_query()
 #> <SQL>
 #> SELECT "FID" AS "a1"
 #> FROM (SELECT "AREA", "PERIMETER", "CNTY_", "CNTY_ID", "NAME", "FIPS", "FIPSNO", "CRESS_ID", "BIR74", "SID74", "NWBIR74", "BIR79", "SID79", "NWBIR79", "_ogr_geometry_", "AREA" AS "aa"
-#> FROM "nc") "dbplyr_003"
+#> FROM "nc") "dbplyr_002"
 
 ## ok because a single statement
 tbl(conn, "nc") %>% transmute(a1 = FID, aa = AREA) %>% collect()
