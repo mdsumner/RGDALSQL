@@ -13,7 +13,7 @@ Imports:
     DBI (>= 0.3.0),
     methods,
     tibble,
-    vapour,
+    vapour (>= 0.5.5.9001),
     wk
 Suggests:
     DBItest,

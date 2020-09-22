@@ -94,7 +94,7 @@ setMethod("dbDisconnect", "GDALSQLConnection",
  #' @export
  setClass("GDALSQLResult",
   contains = "DBIResult",
-  slots = c(layer_data = "list", layer_geom = "wk_vctr")
+  slots = c(layer_data = "list", layer_geom = "wk_vctr", geom_name = "character")
 )
 
 #' Send a query to GDALSQL.
@@ -116,10 +116,11 @@ setMethod("dbSendQuery", "GDALSQLConnection",
 
             layer_data <- vapour::vapour_read_attributes(DSN, sql = statement)
             layer_geom <- wk::new_wk_wkb(vapour::vapour_read_geometry(DSN, sql = statement))
-
+            geom_name <-  geom_name <- vapour::vapour_geom_name(DSN, sql = statement)
             new("GDALSQLResult",
                 layer_data = layer_data,
-                layer_geom = layer_geom)
+                layer_geom = layer_geom,
+                geom_name = geom_name)
 
           })
 
@@ -144,7 +145,13 @@ setMethod("show", "GDALSQLResult",
 #' @export
 setMethod("dbFetch", "GDALSQLResult", function(res, n = -1, ...) {
   layer <- tibble::as_tibble(res@layer_data)
-  layer[["GEOM"]] <- res@layer_geom
+  geom_name <- res@geom_name
+  if (geom_name[1L] == "") {
+    geom_name <- getOption("RGDALSQL.default.geom.name")
+  }
+  if (!geom_name %in% names(layer) && !all(is.na(res@layer_geom))) {
+    layer[[geom_name]] <- res@layer_geom
+  }
   layer
 })
 
