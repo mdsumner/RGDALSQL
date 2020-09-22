@@ -39,14 +39,10 @@ dbFetch(res)
 
 * currently read-only, so no temporary tables for `compute()`
 * no temporary tables in non-DB drivers (i.e. GPKG is ok, SHP is not)
-* no sub-queryies in non-DB drivers (i.e. no collapse for SHP)
+* no sub-queryies in non-DB drivers (i.e. no collapse for SHP or GDB)
 
-filter, arrange, summarize, transmute, mutate, ok
+filter, arrange, summarize, transmute, mutate, ok but cannot be chained for nested sub-queries
 
-TODO
-
-- remove default keep of geometry
-- ...
 
 
 
@@ -62,7 +58,7 @@ Try OSM PBF.
 
 ```{r, eval=FALSE}
 # wget https://download.geofabrik.de/europe/albania-latest.osm.pbf
-f <- "~/albania-latest.osm.pbf"
+f <- fs::path_expand("~/albania-latest.osm.pbf")
 pbf <- dbConnect(RGDALSQL::GDALSQL(),f)
 ## we have to use a normalized path 
 ## (vapour doesn't do this yet, but GDALSQL will do it *when connecting*, 
@@ -73,19 +69,26 @@ pbf
 tbl(pbf, "points") 
 # Source:   table<points> [?? x 11]
 # Database: GDALSQLConnection
-   osm_id  name      barrier highway   ref   address is_in place man_made other_tags                            GEOM      
-   <chr>   <chr>     <chr>   <chr>     <chr> <chr>   <chr> <chr> <chr>    <chr>                                 <wk_wkb>  
- 1 154606… ""        ""      "traffic… ""    ""      ""    ""    ""       "\"crossing\"=>\"traffic_signals\",\… <POINT (1…
- 2 154926… ""        ""      "crossin… ""    ""      ""    ""    ""       "\"crossing\"=>\"uncontrolled\""      <POINT (1…
- 3 154927… ""        ""      "traffic… ""    ""      ""    ""    ""       "\"crossing\"=>\"traffic_signals\",\… <POINT (1…
- 4 154927… ""        ""      "crossin… ""    ""      ""    ""    ""       "\"crossing\"=>\"uncontrolled\""      <POINT (1…
- 5 154928… ""        ""      "traffic… ""    ""      ""    ""    ""       "\"crossing\"=>\"traffic_signals\",\… <POINT (1…
- 6 154936… ""        ""      "crossin… ""    ""      ""    ""    ""       "\"crossing\"=>\"uncontrolled\",\"su… <POINT (1…
- 7 268630… "Grykat … ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\""               <POINT (1…
- 8 268632… "Kakiuki" ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\""               <POINT (1…
- 9 268635… "Mali i … ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\",\"wikidata\"=… <POINT (1…
-10 268635… "Maja e … ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\",\"prominence\… <POINT (2…
+   osm_id  name     barrier highway   ref   address is_in place man_made other_tags                            `_ogr_geometry_`  
+   <chr>   <chr>    <chr>   <chr>     <chr> <chr>   <chr> <chr> <chr>    <chr>                                 <wk_wkb>          
+ 1 154606… ""       ""      "traffic… ""    ""      ""    ""    ""       "\"crossing\"=>\"traffic_signals\",\… <POINT (19.8082 4…
+ 2 154926… ""       ""      "crossin… ""    ""      ""    ""    ""       "\"crossing\"=>\"uncontrolled\""      <POINT (19.4762 4…
+ 3 154927… ""       ""      "traffic… ""    ""      ""    ""    ""       "\"crossing\"=>\"traffic_signals\",\… <POINT (19.8221 4…
+ 4 154927… ""       ""      "crossin… ""    ""      ""    ""    ""       "\"crossing\"=>\"uncontrolled\""      <POINT (19.5045 4…
+ 5 154928… ""       ""      "traffic… ""    ""      ""    ""    ""       "\"crossing\"=>\"traffic_signals\",\… <POINT (19.8081 4…
+ 6 154936… ""       ""      "crossin… ""    ""      ""    ""    ""       "\"crossing\"=>\"uncontrolled\",\"su… <POINT (19.4954 4…
+ 7 268630… "Grykat… ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\""               <POINT (19.9047 4…
+ 8 268632… "Kakiuk… ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\""               <POINT (19.8792 4…
+ 9 268635… "Mali i… ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\",\"wikidata\"=… <POINT (19.9241 4…
+10 268635… "Maja e… ""      ""        ""    ""      ""    ""    ""       "\"natural\"=>\"peak\",\"prominence\… <POINT (20.1628 4…
 # … with more rows
+
+tbl(pbf, "multipolygons") %>% filter(osm_id == "53292") %>% select(`_ogr_geometry_`, type)
+# Source:   lazy query [?? x 2]
+# Database: GDALSQLConnection
+  type     `_ogr_geometry_`                                                      
+  <chr>    <wk_wkb>                                                              
+1 boundary <MULTIPOLYGON (((20.0126 42.5258, 20.0124 42.5257, 20.0123 42.5258...>
 ```
 
 
@@ -97,13 +100,24 @@ dbListTables(conn)
 
 x <- dbSendQuery(conn, "SELECT * FROM sids WHERE SID74 < 10")
 
-## atm we must include 'GEOM' if a select wouldn't include it
-conn
+tbl(conn, "sids") %>% 
+  arrange(desc(AREA))  %>% 
+  transmute(a = AREA *8, geom, AREA) %>% 
+  filter(a > 1.62)  %>% 
+  show_query()
 
-## we can work with FID but not OGR_GEOM_AREA it seems, and can't select FID ...
-tbl(conn, "sids") %>% arrange(desc(FID))  %>% select(BIR74, NAME, GEOM)  %>% collect()
 
-## with SHP we can do arrange but not select on OGR_GEOM_AREA
-#f <- system.file("shape/nc.shp", package = "sf")
-#tbl(conn, "nc") %>% arrange(desc(OGR_GEOM_AREA))    %>% collect()
+## with SHP we can't do subquery
+f <- system.file("shape/nc.shp", package = "sf")
+conn <- dbConnect(GDALSQL(), f)
+## but the special variables are there
+tbl(conn, "nc") %>% arrange(OGR_GEOM_AREA)
+tbl(conn, "nc") %>% arrange(OGR_GEOM_AREA, FID) %>% show_query()
+
+## FAILS because subquery
+tbl(conn, "nc") %>% mutate(aa = AREA) %>% transmute(a1 = FID) %>% show_query()
+
+## ok because a single statement
+tbl(conn, "nc") %>% transmute(a1 = FID, aa = AREA) %>% collect()
+
 ```
